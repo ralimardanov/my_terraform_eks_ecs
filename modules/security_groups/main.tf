@@ -1,9 +1,9 @@
 ### This will get all AZ from AWS, so you can refer to it further during VPC creation and etc
-data "aws_availability_zones" "available_azs" {}
+#data "aws_availability_zones" "available_azs" {}
 
 resource "aws_security_group" "main_sg" {
   count  = var.sg_value ? 1 : 0 
-  name   = "${var.common_tags["ENV"]}-SG"
+  #name   = "${var.common_tags["ENV"]}-SG"
   vpc_id = var.vpc_id
 
   lifecycle {

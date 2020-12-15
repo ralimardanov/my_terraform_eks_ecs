@@ -10,7 +10,7 @@ variable "vpc_id" {
 
 variable "sg_value" {
   description = "True/False for security group creation"
-  type = boolean
+  type = bool
 }
 
 variable "sg_ingress_values" {

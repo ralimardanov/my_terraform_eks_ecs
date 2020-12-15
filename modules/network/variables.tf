@@ -4,7 +4,7 @@ variable "cidr_block" {
 }
 variable "vpc_dns_value" {
   description = "Boolean value for components"
-  type        = boolean
+  type        = bool
   default     = true
 }
 
@@ -25,7 +25,7 @@ variable "public_subnet_cidr_blocks" {
 
 variable "vpc_value_aws_eip" {
   description = "Boolean value for AWS NAT EIP"
-  type        = boolean
+  type        = bool
   default     = true
 }
 
@@ -36,7 +36,7 @@ variable "nat_gtw_count" {
 
 variable "public_ip_value" {
   description = "Boolean value for public ip assignment on launch for public subnets"
-  type        = boolean
+  type        = bool
   default     = true
 }
 
