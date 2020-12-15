@@ -1,8 +1,7 @@
-This is my test EKS/ECS infrastructure, created via Terraform.
-Purpose of this test is to create EKC and ECS clusters in separate regions.
+Purpose of this is to create EKC/ECS clusters with Terraform modules in separate regions.
 
-Will be created(list will be update):
-1) Network module
+Will be created (list will be updated):
+1) Network module/Security Group module, S3 bucket for backend and DynamoDB table for locking
 2) ECS module
 3) EKS module
-4) EC2 instance with Jenkins, Docker/Docker compose, Git and etc pre-installed
+4) EC2 instance with pre-installed Jenkins, Docker/Docker compose, Git and etc
