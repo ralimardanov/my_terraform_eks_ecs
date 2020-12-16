@@ -2,6 +2,7 @@
 provider "aws" {
   version = "~> 2.0"
   region  = var.region
+  profile = var.profile
 }
 
 #AWS backend configuration
@@ -13,6 +14,20 @@ terraform {
   }
 }
 
+# User Data for EC2 instance configuration. Maybe I should move it to EC2 module?
+# what in case if user-data isn't send? Module should work. Take a look.
+data "template_file" "user_data" {
+    template = "${file(var.user_data_file)}"    
+}
+
+#EC2 module
+module "ec2" {
+  source = "../modules/ec2"
+
+  user_data = "${data.template_file.user_data.rendered}"  
+}
+
+#Security Group module
 /*
 module "security_groups" {
   source            = "../modules/security_groups"
@@ -23,6 +38,7 @@ module "security_groups" {
   common_tags       = var.common_tags
 }
 
+#Network module
 module "network" {
   source = "../modules/network"
 }
