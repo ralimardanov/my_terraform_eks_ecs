@@ -1,10 +1,10 @@
 resource "aws_security_group" "main_sg" {
-  count  = var.sg_value ? 1 : 0 
+  count  = var.sg_value ? 1 : 0
   vpc_id = var.vpc_id
 
   lifecycle {
     create_before_destroy = true
-  } 
+  }
 
   dynamic "ingress" {
     for_each = var.sg_ingress_values
@@ -15,7 +15,7 @@ resource "aws_security_group" "main_sg" {
       cidr_blocks = ingress.value.cidr_blocks
       description = ingress.value.description
     }
- }
+  }
 
   dynamic "egress" {
     for_each = var.sg_egress_values
@@ -25,7 +25,7 @@ resource "aws_security_group" "main_sg" {
       protocol    = egress.value.protocol
       cidr_blocks = egress.value.cidr_blocks
     }
- }
+  }
 
   tags = merge(var.common_tags, { Name = "${var.common_tags["Env"]}-SG" })
 }

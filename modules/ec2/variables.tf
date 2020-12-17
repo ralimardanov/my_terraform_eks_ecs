@@ -7,8 +7,8 @@ variable "ami_filter_name" {
 
 variable "ami_filter_values" {
   description = "Values to filter with"
-  type        = string
-  default     = ""
+  type        = list(string)
+  default     = [""]
 }
 
 variable "ami_virtualization_name" {
@@ -31,6 +31,10 @@ variable "ami_owners" {
 
 #EC2 instance variables
 
+variable "instance_count" {
+  description = "Count of EC2 instances"
+  type = number
+}
 variable "common_tags" {
   description = "Tags for EC2 instance"
   type        = map
@@ -45,15 +49,15 @@ variable "instance_type" {
 
 variable "security_groups" {
   description = "Security group ID for EC2 instance"
-  type        = string
-  default     = ""
+  type        = list(string)
+  default     = [""]
 }
 
-variable "ssh_key_name" {
+/*variable "ssh_key_name" {
   description = "SSH key name for EC2 instance"
   type        = string
   default     = ""
-}
+}*/
 
 variable "user_data" {
   description = "User data for Jenkins, Docker, Docker-Compose installation"
@@ -87,8 +91,7 @@ variable "ebs_volume_type" {
 }
 variable "ebs_volume_size" {
   description = "EBS volume size for EC2"
-  type        = string
-  default     = ""
+  type        = number
 }
 variable "ebs_delete_on_termination" {
   description = "True/False boolean for EBS volume delete on termination"
@@ -106,7 +109,6 @@ variable "key_algorithm" {
 variable "rsa_bits" {
   description = "RSA bits used for SSH key creation"
   type        = number
-  default     = ""
 }
 
 variable "key_name" {
