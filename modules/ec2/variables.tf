@@ -33,7 +33,7 @@ variable "ami_owners" {
 
 variable "instance_count" {
   description = "Count of EC2 instances"
-  type = number
+  type        = number
 }
 variable "common_tags" {
   description = "Tags for EC2 instance"
@@ -46,7 +46,41 @@ variable "instance_type" {
   type        = string
   default     = ""
 }
+variable "iam_policy_document_actions" {
+  description = "Actions for policy used for IAM role for EC2 instance"
+  type        = list(string)
+  default     = [""]
+}
 
+variable "iam_policy_document_type" {
+  description = "Type for policy used for IAM role for EC2 instance"
+  type        = string
+  default     = ""
+}
+
+variable "iam_policy_document_identifiers" {
+  description = "Identifiers for policy used for IAM role for EC2 instance"
+  type        = list(string)
+  default     = [""]
+}
+
+variable "iam_role_name" {
+  description = "Name of IAM role for EC2"
+  type        = string
+  default     = ""
+}
+
+variable "iam_instance_profile_name" {
+  description = "Name of IAM instance profile for EC2"
+  type        = string
+  default     = ""
+}
+
+variable "aws_iam_policy_arn" {
+  description = "SSM role ARN for policy attachment"
+  type        = string
+  default     = ""
+}
 variable "security_groups" {
   description = "Security group ID for EC2 instance"
   type        = list(string)

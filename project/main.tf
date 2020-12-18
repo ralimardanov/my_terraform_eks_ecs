@@ -1,4 +1,4 @@
-#AWS provider configuration
+# AWS, TLS and Template provider configuration
 provider "aws" {
   version = "~> 2.70.0"
   region  = var.region
@@ -20,25 +20,29 @@ terraform {
   }
 }
 
-# User Data for EC2 instance configuration. Maybe I should move it to EC2 module?
-# what in case if user-data isn't send? Module should work. Take a look.
-
+# User Data for EC2 instance configuration. 
 data "template_file" "user_data" {
   template = file(var.user_data_file)
 }
 
-#EC2 module
+# EC2 module
 module "ec2" {
   source         = "../modules/ec2"
   instance_count = var.instance_count
 
-  ami_filter_name           = var.ami_filter_name
-  ami_filter_values         = var.ami_filter_values
-  ami_virtualization_name   = var.ami_virtualization_name
-  ami_virtualization_values = var.ami_virtualization_values
-  ami_owners                = var.ami_owners
-  instance_type             = var.instance_type
-  ec2_public_ip             = var.ec2_public_ip
+  ami_filter_name                 = var.ami_filter_name
+  ami_filter_values               = var.ami_filter_values
+  ami_virtualization_name         = var.ami_virtualization_name
+  ami_virtualization_values       = var.ami_virtualization_values
+  ami_owners                      = var.ami_owners
+  instance_type                   = var.instance_type
+  ec2_public_ip                   = var.ec2_public_ip
+  iam_policy_document_actions     = var.iam_policy_document_actions
+  iam_policy_document_type        = var.iam_policy_document_type
+  iam_policy_document_identifiers = var.iam_policy_document_identifiers
+  iam_role_name                   = var.iam_role_name
+  iam_instance_profile_name       = var.iam_instance_profile_name
+  aws_iam_policy_arn              = var.aws_iam_policy_arn
 
   ebs_device_name           = var.ebs_device_name
   ebs_volume_type           = var.ebs_volume_type
@@ -55,7 +59,7 @@ module "ec2" {
   common_tags     = var.common_tags
 }
 
-#Network module
+# Network module
 module "network" {
   source = "../modules/network"
 
@@ -70,9 +74,10 @@ module "network" {
   common_tags                = var.common_tags
 }
 
-#Security Group module
+# Security Group module
 module "security_groups" {
-  source            = "../modules/security_groups"
+  source = "../modules/security_groups"
+
   vpc_id            = module.network.vpc_id
   sg_value          = var.sg_value
   sg_ingress_values = var.sg_ingress_values
@@ -80,3 +85,6 @@ module "security_groups" {
   common_tags       = var.common_tags
 }
 
+# ECS module
+
+# EKS module

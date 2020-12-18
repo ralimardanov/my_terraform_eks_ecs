@@ -11,8 +11,8 @@ output "private_ip" {
 }
 
 output "private_key_content" {
-  sensitive   = true
-  value       = join("", tls_private_key.jenkins_key.*.private_key_pem)
+  sensitive = true
+  value     = join("", tls_private_key.jenkins_key.*.private_key_pem)
 }
 
 /*output "ebs_id" {

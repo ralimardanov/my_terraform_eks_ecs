@@ -40,9 +40,6 @@ variable "default_rt_cidr_block" {
 }
 
 # SG variables
-/*variable "vpc_id" {
-  type        = string
-}*/
 variable "sg_value" {
   type = bool
 }
@@ -74,6 +71,26 @@ variable "ami_owners" {
 ### EC2 instance variables
 variable "instance_count" {
   type = number
+}
+variable "iam_policy_document_actions" {
+  type = list(string)
+}
+
+variable "iam_policy_document_type" {
+  type = string
+}
+
+variable "iam_policy_document_identifiers" {
+  type = list(string)
+}
+variable "iam_role_name" {
+  type = string
+}
+variable "iam_instance_profile_name" {
+  type = string
+}
+variable "aws_iam_policy_arn" {
+  type = string
 }
 variable "instance_type" {
   type = string
