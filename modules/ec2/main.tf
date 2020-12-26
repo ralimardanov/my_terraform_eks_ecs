@@ -45,23 +45,23 @@ resource "aws_iam_instance_profile" "ssm_access" {
 }
 
 # SSH key generation for instance
-resource "tls_private_key" "jenkins_key" {
+resource "tls_private_key" "instance_key" {
   algorithm = var.key_algorithm
   rsa_bits  = var.rsa_bits
 }
 
-resource "aws_key_pair" "jenkins_key_pair" {
+resource "aws_key_pair" "instance_key_pair" {
   key_name   = var.key_name
-  public_key = tls_private_key.jenkins_key.public_key_openssh
+  public_key = tls_private_key.instance_key.public_key_openssh
 }
 
 # EC2 instance configuration
-resource "aws_instance" "jenkins" {
+resource "aws_instance" "instance" {
   count                       = var.instance_count
   ami                         = data.aws_ami.amazon_linux.id
   instance_type               = var.instance_type
   security_groups             = var.security_groups
-  key_name                    = aws_key_pair.jenkins_key_pair.key_name
+  key_name                    = aws_key_pair.instance_key_pair.key_name
   user_data                   = var.user_data
   subnet_id                   = var.subnet_id
   associate_public_ip_address = var.ec2_public_ip
@@ -79,5 +79,5 @@ resource "aws_instance" "jenkins" {
     create_before_destroy = true
   }
 
-  tags = merge(var.common_tags, { Name = "${var.common_tags["Env"]}-SG" })
+  tags = merge(var.common_tags, { Name = "${var.common_tags["Env"]}-${var.instance_name}-Instance" })
 }

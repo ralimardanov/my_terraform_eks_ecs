@@ -35,3 +35,31 @@ output "private_key_content" {
 /*output "ebs_id" {
   value = module.ec2.ebs_id
 }*/
+
+# ECS outputs
+output "ecs_private_key_content" {
+  value = module.ecs.ecs_private_key_content
+}
+output "ecs_cluster_name" {
+  value = module.ecs.ecs_cluster_name
+}
+output "ecr_repo_name" {
+  value = module.ecs.ecr_repo_name
+}
+/*output "ecs_service_role_arn" {
+  value = module.ecs.ecs_service_role_arn
+}*/
+output "ecs_instance_role_arn" {
+  value = module.ecs.ecs_instance_role_arn
+}
+output "ecs_load_balancer_name" {
+  value = module.ecs.ecs_load_balancer_name
+}
+output "ecs_target_group_arn" {
+  value = module.ecs.ecs_target_group_arn
+}
+
+#route 53 output
+/*output "stg_lb_record" {
+  value = module.ecs.stg_lb_record
+} */
