@@ -1,35 +1,7 @@
-# I'll use ASG and launch configuration right here. It can be used as additional module also.
-# Best AMI for ECS
-data "aws_ami" "ecs" {
-  most_recent = true
-
-  filter {
-    name   = var.ecs_filter_name
-    values = var.ecs_filter_values
-  }
-
-  filter {
-    name   = var.ecs_filter_virtualization_name
-    values = var.ecs_filter_virtualization_values
-  }
-
-  owners = var.ecs_owners
-}
-
-# SSH key generation for ECS instances
-resource "tls_private_key" "ecs_key" {
-  algorithm = var.ecs_key_algorithm
-  rsa_bits  = var.ecs_rsa_bits
-}
-resource "aws_key_pair" "ecs_key_pair" {
-  key_name   = var.ecs_key_name
-  public_key = tls_private_key.ecs_key.public_key_openssh
-}
-
 # AWS ECS configuration
 resource "aws_ecs_cluster" "ecs_cluster" {
-  name = "${var.common_tags["Env"]}-ECS"
-  tags = merge(var.common_tags, { Name = "${var.common_tags["Env"]}-ECS" })
+  name = "${var.common_tags["Env"]}-${var.common_tags["Component"]}"
+  tags = merge(var.common_tags, { Name = "${var.common_tags["Env"]}-${var.common_tags["Component"]}" })
 }
 
 resource "aws_ecr_repository" "ecr_repo" {
@@ -50,7 +22,7 @@ resource "aws_ecs_task_definition" "wordpress" {
   network_mode          = var.ecs_task_def_network_mode #because in ALB configuration I used "ip" as target_type
 }
 resource "aws_ecs_service" "ecs_service" {
-  name = "${var.common_tags["Env"]}-ECS-Service"
+  name = "${var.common_tags["Env"]}-${var.common_tags["Component"]}-Service"
   #iam_role        = aws_iam_role.ecs_service_role.name # this parameter is requered, when you use LB with your service, only if you don't use awsvpc.
   cluster         = aws_ecs_cluster.ecs_cluster.id
   task_definition = aws_ecs_task_definition.wordpress.arn
@@ -62,10 +34,8 @@ resource "aws_ecs_service" "ecs_service" {
   }
 
   load_balancer {
-    target_group_arn = aws_alb_target_group.ecs_target_group.arn
+    target_group_arn = var.lb_target_group_arn
     container_port   = var.ecs_service_container_port
     container_name   = var.ecs_service_container_name
   }
-
-  depends_on = [aws_alb_target_group.ecs_target_group]
 }

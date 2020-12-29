@@ -99,7 +99,7 @@ variable "aws_iam_policy_arn" {
 variable "instance_type" {
   type = string
 }
-variable "user_data_file" {
+variable "ec2_user_data_file" {
   type = string
 }
 variable "ec2_public_ip" {
@@ -132,6 +132,10 @@ variable "key_name" {
 }
 
 ### ECS variables
+variable "ecs_common_tags" {
+  type = map
+}
+
 ### AWS AMI variables
 variable "ecs_filter_name" {
   type = string
@@ -241,143 +245,128 @@ variable "ecs_service_container_name" {
 variable "ecs_asg_tags" {
   type = list
 }
-variable "asg_termination_policies" {
+variable "ecs_asg_termination_policies" {
   type = list(string)
 }
-variable "asg_vpc_zone_identifier" {
-  type = list
-}
-variable "asg_default_cooldown" {
+variable "ecs_asg_default_cooldown" {
   type = number
 }
-variable "asg_health_check_grace_period" {
+variable "ecs_asg_health_check_grace_period" {
   type = number
 }
-variable "asg_health_check_type" {
+variable "ecs_asg_health_check_type" {
   type = string
 }
-variable "asg_max_size" {
+variable "ecs_asg_max_size" {
   type = number
 }
-variable "asg_min_size" {
+variable "ecs_asg_min_size" {
   type = number
 }
 
-variable "asg_policy_type" {
+variable "ecs_asg_policy_type" {
   type = string
 }
-variable "asg_adjustment_type" {
+variable "ecs_asg_adjustment_type" {
   type = string
 }
-variable "asg_cluster_name" {
+variable "ecs_asg_cluster_name" {
   type = string
 }
-variable "asg_metric_name" {
+variable "ecs_asg_metric_name" {
   type = string
 }
-variable "asg_namespace" {
+variable "ecs_asg_namespace" {
   type = string
 }
-variable "asg_statistic" {
+variable "ecs_asg_statistic" {
   type = string
 }
-variable "asg_target_value" {
+variable "ecs_asg_target_value" {
   type = number
 }
-variable "asg_lc_instance_type" {
+variable "ecs_asg_lc_instance_type" {
   type = string
 }
-variable "asg_lc_user_data" {
+variable "ecs_asg_lc_user_data" {
   type = string
 }
-variable "asg_lc_enable_monitoring" {
+variable "ecs_asg_lc_enable_monitoring" {
   type = bool
 }
-variable "asg_lc_associate_public_ip" {
+variable "ecs_asg_lc_associate_public_ip" {
   type = bool
 }
-variable "asg_lc_volume_type" {
+variable "ecs_asg_lc_volume_type" {
   type = string
 }
-variable "asg_lc_volume_size" {
+variable "ecs_asg_lc_volume_size" {
   type = number
 }
-variable "asg_lc_delete_on_termination" {
+variable "ecs_asg_lc_delete_on_termination" {
   type = bool
-}
-variable "asg_lc_security_groups" {
-  type = list
 }
 
-### ALB variables
-variable "lb_internal" {
+### ECS ALB variables
+variable "ecs_lb_internal" {
   type = bool
 }
-variable "lb_load_balancer_type" {
+variable "ecs_lb_load_balancer_type" {
   type = string
 }
-variable "lb_security_groups" {
-  type = list
-}
-variable "lb_public_subnets" {
-  type = list
-}
-variable "lb_deletion_protection" {
+variable "ecs_lb_deletion_protection" {
   type = bool
 }
 ### Target group variables
-variable "tg_health_check_port" {
+variable "ecs_tg_health_check_port" {
   type = string
 }
-variable "tg_port" {
+variable "ecs_tg_port" {
   type = number
 }
-variable "tp_protocol" {
+variable "ecs_tp_protocol" {
   type = string
 }
-variable "tg_vpc_id" {
+variable "ecs_tg_target_type" {
   type = string
 }
-variable "tg_target_type" {
+variable "ecs_tg_healthy_threshold" {
+  type = number
+}
+variable "ecs_tg_interval" {
+  type = number
+}
+variable "ecs_tg_matcher" {
+  type = number
+}
+variable "ecs_tg_timeout" {
+  type = number
+}
+variable "ecs_tg_health_check_path" {
   type = string
 }
-variable "tg_healthy_threshold" {
-  type = number
-}
-variable "tg_interval" {
-  type = number
-}
-variable "tg_matcher" {
-  type = number
-}
-variable "tg_timeout" {
-  type = number
-}
-variable "health_check_path" {
-  type = string
-}
-variable "tg_unhealthy_threshold" {
+variable "ecs_tg_unhealthy_threshold" {
   type = number
 }
 
 ### LB listener variables
-variable "lb_listener_port" {
+variable "ecs_lb_listener_port" {
   type = number
 }
-variable "lb_listener_protocol" {
+variable "ecs_lb_listener_protocol" {
   type = string
 }
-variable "lb_listener_type" {
+variable "ecs_lb_listener_type" {
   type = string
 }
 
 # Route 53 variables
-/*variable "route53_name" {
+variable "ecs_route_53_name" {
   type = string
 }
-variable "route53_type" {
+variable "ecs_route_53_type" {
   type = string
 }
-variable "route_53_evaluate_value" {
+variable "ecs_route_53_evaluate_value" {
   type = bool
-} */
+}
