@@ -1,4 +1,4 @@
-Purpose of this is to create EKC/ECS clusters with Terraform modules in separate regions.
+Purpose of this is to create EKC/ECS clusters with Terraform modules.
 
 Will be created (list will be updated):
 1) Network module/Security Group module, S3 bucket for backend and DynamoDB table for locking
