@@ -49,3 +49,20 @@ variable "default_rt_cidr_block" {
   type        = string
   default     = "0.0.0.0/0"
 }
+
+# EKS tags
+variable "eks_vpc_tags" {
+  description = "EKS related tags for VPC"
+  type        = map
+  default     = {}
+}
+variable "eks_public_subnets_tags" {
+  description = "EKS related tags for VPC"
+  type        = map
+  default     = {}
+}
+variable "eks_private_subnets_tags" {
+  description = "EKS related tags for VPC"
+  type        = map
+  default     = {}
+}

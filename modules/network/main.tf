@@ -8,7 +8,7 @@ resource "aws_vpc" "main" {
   enable_dns_support   = var.vpc_dns_value
 
   # this will merge common_tags on VPC and other resources and give the name to object
-  tags = merge(var.common_tags, { Name = "${var.common_tags["Env"]}-VPC" })
+  tags = merge(var.common_tags, { Name = "${var.common_tags["Env"]}-VPC" }, var.eks_vpc_tags)
 }
 
 resource "aws_internet_gateway" "main" {
@@ -45,7 +45,7 @@ resource "aws_subnet" "public_subnets" {
   availability_zone       = data.aws_availability_zones.available_azs.names[count.index]
   map_public_ip_on_launch = var.public_ip_value
 
-  tags = merge(var.common_tags, { Name = "${var.common_tags["Env"]}-Public-Subnet-${count.index + 1}" })
+  tags = merge(var.common_tags, { Name = "${var.common_tags["Env"]}-Public-Subnet-${count.index + 1}" }, var.eks_public_subnets_tags)
 }
 resource "aws_route_table" "public_rt" {
   vpc_id = aws_vpc.main.id
@@ -68,9 +68,9 @@ resource "aws_subnet" "private_subnets" {
   count             = length(var.private_subnet_cidr_blocks)
   vpc_id            = aws_vpc.main.id
   cidr_block        = element(var.private_subnet_cidr_blocks, count.index)
-  availability_zone = data.aws_availability_zones.available_azs.names[count.index]
+  availability_zone = data.aws_availability_zones.available_azs.names[length(var.public_subnet_cidr_blocks) + count.index] #this was done for EKS cluster. this will create each subnet in different AZ. 
 
-  tags = merge(var.common_tags, { Name = "${var.common_tags["Env"]}-Private-Subnet-${count.index + 1}" })
+  tags = merge(var.common_tags, { Name = "${var.common_tags["Env"]}-Private-Subnet-${count.index + 1}" }, var.eks_private_subnets_tags)
 }
 resource "aws_route_table" "private_rt" {
   count  = var.nat_gtw_count

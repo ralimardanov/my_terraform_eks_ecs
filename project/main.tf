@@ -1,8 +1,25 @@
 # AWS, TLS and Template provider configuration
 provider "aws" {
   version = "~> 3.6.0"
-  region  = var.region
-  profile = var.profile
+  region  = var.region_east
+  profile = var.profile_east
+
+  # this is used for tags not to be removed every time when VPC module is applied.
+  /*ignore_tags {
+    key_prefixes = ["kubernetes.io/"]
+  }*/
+}
+# this configuration can be used to deploy resources in another region. just specify this inside resources.
+provider "aws" {
+  version = "~> 3.6.0"
+  region  = var.region_west
+  profile = var.profile_west
+  alias   = "secondary"
+
+  # this is used for tags not to be removed every time when VPC module is applied.
+  /*ignore_tags {
+    key_prefixes = ["kubernetes.io/"]
+  }*/
 }
 provider "template" {
   version = "~> 2.2.0"
@@ -20,7 +37,10 @@ terraform {
   }
 }
 
-# User Data for EC2 instance configuration. 
+# Will be used to access Account ID/ARN
+data "aws_caller_identity" "current" {}
+
+# User Data for EC2 instance configuration.
 data "template_file" "ec2_user_data" {
   template = file(var.ec2_user_data_file)
 }
@@ -61,6 +81,21 @@ data "template_file" "ec2_user_data" {
 }*/
 
 # Network module
+
+# locals for VPC EKS tagging
+locals {
+  eks_vpc_tags = {
+    "kubernetes.io/cluster/${var.eks_common_tags["Env"]}-${var.eks_common_tags["Component"]}-Cluster" = "shared"
+  }
+  eks_public_subnets_tags = {
+    "kubernetes.io/cluster/${var.eks_common_tags["Env"]}-${var.eks_common_tags["Component"]}-Cluster" : "shared"
+    "kubernetes.io/role/elb" : "1"
+  }
+  eks_private_subnets_tags = {
+    "kubernetes.io/cluster/${var.eks_common_tags["Env"]}-${var.eks_common_tags["Component"]}-Cluster" : "shared"
+    "kubernetes.io/role/internal-elb" : "1"
+  }
+}
 module "network" {
   source = "../modules/network"
 
@@ -73,21 +108,26 @@ module "network" {
   public_ip_value            = var.public_ip_value
   default_rt_cidr_block      = var.default_rt_cidr_block
   common_tags                = var.common_tags
+  eks_vpc_tags               = local.eks_vpc_tags
+  eks_public_subnets_tags    = local.eks_public_subnets_tags
+  eks_private_subnets_tags   = local.eks_private_subnets_tags
 }
 
 # Security Group module
 module "security_groups" {
   source = "../modules/security_groups"
 
-  vpc_id            = module.network.vpc_id
-  sg_value          = var.sg_value
-  sg_ingress_values = var.sg_ingress_values
-  sg_egress_values  = var.sg_egress_values
-  common_tags       = var.common_tags
+  vpc_id                 = module.network.vpc_id
+  sg_value               = var.sg_value
+  sg_ingress_values      = var.sg_ingress_values
+  sg_ingress_cidr_blocks = var.sg_ingress_cidr_blocks
+  sg_egress_values       = var.sg_egress_values
+  sg_egress_cidr_blocks  = var.sg_egress_cidr_blocks
+  common_tags            = var.common_tags
 }
 
 # ALB module
-module "ecs_alb" {
+/*module "ecs_alb" {
   source      = "../modules/alb"
   common_tags = var.ecs_common_tags
   depends_on  = [module.network, module.security_groups]
@@ -169,7 +209,7 @@ module "ecs_asg_lc" {
   aws_iam_instance_profile_id  = module.ecs.aws_iam_ecs_instance_profile_id
 }
 
-# Route 53 modul
+# Route 53 module
 module "ecs_route_53" {
   source      = "../modules/route_53"
   common_tags = var.ecs_common_tags
@@ -218,5 +258,121 @@ module "ecs" {
   lb_target_group_arn        = module.ecs_alb.target_group_arn
   ecs_service_container_port = var.ecs_service_container_port
   ecs_service_container_name = var.ecs_service_container_name
-}
+}*/
+
 # EKS module
+### SG for EKS module
+module "eks_ecr_endpoints_sg" {
+  source = "../modules/security_groups"
+
+  vpc_id                 = module.network.vpc_id
+  sg_value               = var.sg_value
+  sg_ingress_values      = var.eks_sg_ingress_values
+  sg_ingress_cidr_blocks = flatten([[var.private_subnet_cidr_blocks], var.public_subnet_cidr_blocks])
+  common_tags            = var.eks_common_tags
+}
+module "eks_ec2_endpoints_sg" {
+  source = "../modules/security_groups"
+
+  vpc_id                 = module.network.vpc_id
+  sg_value               = var.sg_value
+  sg_ingress_values      = var.eks_sg_ingress_values
+  sg_ingress_cidr_blocks = flatten([[var.private_subnet_cidr_blocks], var.public_subnet_cidr_blocks])
+  common_tags            = var.eks_common_tags
+}
+module "eks_cluster_sg" {
+  source = "../modules/security_groups"
+
+  vpc_id                              = module.network.vpc_id
+  sg_value                            = var.sg_value
+  sg_ingress_with_source_sg_id_values = var.eks_cluster_sg_ingress_with_source_sg_id_values
+  sg_ingress_with_source_sg_id        = module.eks_worker_sg.sg_id[0] #this one returns tuple with 1 string value. In SG module string is required. 
+  sg_egress_with_source_sg_id_values  = var.eks_cluster_sg_egress_with_source_sg_id_values
+  sg_egress_with_source_sg_id         = module.eks_worker_sg.sg_id[0]
+  common_tags                         = var.eks_common_tags
+}
+module "eks_worker_sg" {
+  source = "../modules/security_groups"
+
+  vpc_id                              = module.network.vpc_id
+  sg_value                            = var.sg_value
+  sg_ingress_with_source_sg_id_values = var.eks_worker_sg_ingress_with_source_sg_id_values
+  sg_ingress_with_source_sg_id        = module.eks_cluster_sg.sg_id[0]
+  sg_ingress_with_self_values         = var.eks_worker_sg_ingress_with_self_values
+  sg_ingress_with_self                = var.eks_worker_sg_ingress_with_self
+  sg_egress_values                    = var.eks_worker_sg_egress_values
+  sg_egress_cidr_blocks               = var.eks_worker_sg_egress_cidr_blocks
+  common_tags                         = var.eks_common_tags
+}
+
+# this is for JSON policies
+data "template_file" "eks_cluster_role_policy" {
+  template = file(var.eks_cluster_role_policy)
+}
+data "template_file" "eks_nodes_role_policy" {
+  template = file(var.eks_nodes_role_policy)
+}
+data "template_file" "eks_cluster_autoscaler_policy" {
+  template = file(var.eks_cluster_autoscaler_policy)
+}
+
+locals {
+  eks_ecr_service_name     = "com.amazonaws.${var.region_east}.ecr.dkr"
+  eks_ecr_api_service_name = "com.amazonaws.${var.region_east}.ecr.api"
+  eks_ec2_service_name     = "com.amazonaws.${var.region_east}.ec2"
+  eks_s3_service_name      = "com.amazonaws.${var.region_east}.s3"
+}
+
+### EKS cluster config
+module "eks" {
+  source          = "../modules/eks"
+  eks_common_tags = var.eks_common_tags
+  depends_on = [module.network, module.security_groups, module.eks_ecr_endpoints_sg, module.eks_ec2_endpoints_sg, module.eks_cluster_sg, module.eks_worker_sg]
+
+  #cluster
+  eks_ecr_image_tag_mutability = var.eks_ecr_image_tag_mutability
+  eks_ecr_policy               = var.eks_ecr_policy
+  eks_cluster_subnet_ids       = flatten([[module.network.private_subnet_ids], module.network.public_subnet_ids])
+  eks_security_groups_ids      = flatten([[module.eks_cluster_sg.sg_id],module.eks_worker_sg.sg_id])
+  endpoint_private_access      = var.endpoint_private_access
+  endpoint_public_access       = var.endpoint_public_access
+
+  #endpoints
+  eks_vpc_id                 = module.network.vpc_id
+  eks_ecr_service_name       = local.eks_ecr_service_name
+  eks_vpc_endpoint_type_int  = var.eks_vpc_endpoint_type_int
+  eks_private_dns_enabled    = var.eks_private_dns_enabled
+  eks_subnet_ids             = flatten([[module.network.private_subnet_ids], module.network.public_subnet_ids])
+  eks_ec2_subnet_ids         = flatten([[module.network.private_subnet_ids], module.network.public_subnet_ids])
+  eks_ecr_security_group_ids = module.eks_ecr_endpoints_sg.sg_id
+  eks_ecr_api_service_name   = local.eks_ecr_api_service_name
+  eks_ec2_service_name       = local.eks_ec2_service_name
+  eks_ec2_security_group_ids = module.eks_ec2_endpoints_sg.sg_id
+  eks_s3_service_name        = local.eks_s3_service_name
+  eks_vpc_endpoint_type_gtw  = var.eks_vpc_endpoint_type_gtw
+  eks_s3_route_table_ids     = module.network.aws_route_table_public_id
+
+  #nodes
+  eks_worker_ami_type             = var.eks_worker_ami_type
+  eks_worker_disk_size            = var.eks_worker_disk_size
+  eks_worker_instance_types       = var.eks_worker_instance_types
+  eks_worker_private_subnet_ids   = module.network.private_subnet_ids
+  eks_worker_private_desired_size = var.eks_worker_private_desired_size
+  eks_worker_private_max_size     = var.eks_worker_private_max_size
+  eks_worker_private_min_size     = var.eks_worker_private_min_size
+  eks_worker_public_subnet_ids    = module.network.public_subnet_ids
+  eks_worker_public_desired_size  = var.eks_worker_public_desired_size
+  eks_worker_public_max_size      = var.eks_worker_public_max_size
+  eks_worker_public_min_size      = var.eks_worker_public_min_size
+
+  #roles
+  eks_cluster_role_policy            = data.template_file.eks_cluster_role_policy.rendered
+  eks_cluster_policy_arn             = var.eks_cluster_policy_arn
+  eks_service_policy_arn             = var.eks_service_policy_arn
+  eks_nodes_role_policy              = data.template_file.eks_nodes_role_policy.rendered
+  eks_node_policy_arn                = var.eks_node_policy_arn
+  eks_node_cni_policy_arn            = var.eks_node_cni_policy_arn
+  eks_node_ro_policy_arn             = var.eks_node_ro_policy_arn
+  eks_cluster_autoscaler_policy_name = var.eks_cluster_autoscaler_policy_name
+  eks_cluster_autoscaler_policy      = data.template_file.eks_cluster_autoscaler_policy.rendered
+}
