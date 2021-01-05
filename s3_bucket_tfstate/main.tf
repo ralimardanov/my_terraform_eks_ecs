@@ -27,7 +27,6 @@ resource "aws_s3_bucket" "terraform_state" {
 }
 
 #AWS DynamoDB table for backend configuration. Use this part in case if you want to use it.
-/*
 resource "aws_dynamodb_table" "terraform_state_lock" {
   name           = var.dynamodb_table_name
   read_capacity  = var.read_value
@@ -39,4 +38,3 @@ resource "aws_dynamodb_table" "terraform_state_lock" {
     type = var.attribute_type
   }
 }
-*/

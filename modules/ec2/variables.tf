@@ -30,11 +30,6 @@ variable "ami_owners" {
 }
 
 #EC2 instance variables
-variable "instance_name" {
-  description = "EC2 instance name"
-  type        = string
-  default     = ""
-}
 variable "instance_count" {
   description = "Count of EC2 instances"
   type        = number

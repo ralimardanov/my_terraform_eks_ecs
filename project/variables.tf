@@ -138,9 +138,9 @@ variable "ami_owners" {
 }
 
 # EC2 instance variables
-variable "instance_name" {
-  type    = string
-  default = ""
+variable "ec2_jenkins_common_tags" {
+  type    = map
+  default = {}
 }
 variable "instance_count" {
   type    = number
@@ -529,6 +529,18 @@ variable "ecs_route_53_evaluate_value" {
 variable "eks_common_tags" {
   type    = map
   default = {}
+}
+variable "eks_ecr_sg_common_tags" {
+  type    = map
+  default = {}  
+}
+variable "eks_ec2_sg_common_tags" {
+  type    = map
+  default = {}    
+}
+variable "eks_worker_sg_common_tags" {
+  type    = map
+  default = {}  
 }
 variable "eks_sg_ingress_values" {
   type    = list(map(any))

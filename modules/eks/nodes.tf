@@ -9,6 +9,10 @@ resource "aws_eks_node_group" "eks_node_private" {
   disk_size      = var.eks_worker_disk_size    
   instance_types = var.eks_worker_instance_types 
 
+  remote_access {
+    ec2_ssh_key = "rafig_kp"
+  }
+
   scaling_config {
     desired_size = var.eks_worker_private_desired_size
     max_size     = var.eks_worker_private_max_size
@@ -35,6 +39,10 @@ resource "aws_eks_node_group" "eks_node_public" {
   ami_type       = var.eks_worker_ami_type       
   disk_size      = var.eks_worker_disk_size     
   instance_types = var.eks_worker_instance_types 
+
+  remote_access {
+    ec2_ssh_key = "rafig_kp"
+  }
 
   scaling_config {
     desired_size = var.eks_worker_public_desired_size

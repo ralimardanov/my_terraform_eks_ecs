@@ -79,5 +79,5 @@ resource "aws_instance" "instance" {
     create_before_destroy = true
   }
 
-  tags = merge(var.common_tags, { Name = "${var.common_tags["Env"]}-${var.instance_name}-Instance" })
+  tags = merge(var.common_tags, { Name = "${var.common_tags["Env"]}-${var.common_tags["Component"]}-Instance" })
 }

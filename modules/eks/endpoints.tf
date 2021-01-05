@@ -16,6 +16,7 @@ resource "aws_vpc_endpoint" "ecr_api" {
   service_name        = var.eks_ecr_api_service_name  
   vpc_endpoint_type   = var.eks_vpc_endpoint_type_int
   private_dns_enabled = var.eks_private_dns_enabled
+  subnet_ids          = var.eks_subnet_ids 
 
   security_group_ids = var.eks_ecr_security_group_ids
 

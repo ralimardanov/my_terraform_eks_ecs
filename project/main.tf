@@ -31,9 +31,10 @@ provider "tls" {
 #AWS backend configuration
 terraform {
   backend "s3" {
-    bucket = "terraform-20201215213013426900000001"
-    key    = "terraform_tfstate_location"
-    region = "us-east-1"
+    bucket         = "terraform-20201215213013426900000001"
+    key            = "terraform_tfstate_location"
+    region         = "us-east-1"
+    dynamodb_table = "app-state"
   }
 }
 
@@ -49,7 +50,6 @@ data "template_file" "ec2_user_data" {
 /*module "ec2" {
   source         = "../modules/ec2"
   instance_count = var.instance_count
-  instance_name  = var.instance_name
 
   ami_filter_name                 = var.ami_filter_name
   ami_filter_values               = var.ami_filter_values
@@ -77,7 +77,7 @@ data "template_file" "ec2_user_data" {
   user_data       = data.template_file.ec2_user_data.rendered
   security_groups = module.security_groups.sg_id
   subnet_id       = module.network.public_subnet_ids[var.instance_count]
-  common_tags     = var.common_tags
+  common_tags     = var.ec2_jenkins_common_tags
 }*/
 
 # Network module
@@ -269,7 +269,7 @@ module "eks_ecr_endpoints_sg" {
   sg_value               = var.sg_value
   sg_ingress_values      = var.eks_sg_ingress_values
   sg_ingress_cidr_blocks = flatten([[var.private_subnet_cidr_blocks], var.public_subnet_cidr_blocks])
-  common_tags            = var.eks_common_tags
+  common_tags            = var.eks_ecr_sg_common_tags
 }
 module "eks_ec2_endpoints_sg" {
   source = "../modules/security_groups"
@@ -278,7 +278,7 @@ module "eks_ec2_endpoints_sg" {
   sg_value               = var.sg_value
   sg_ingress_values      = var.eks_sg_ingress_values
   sg_ingress_cidr_blocks = flatten([[var.private_subnet_cidr_blocks], var.public_subnet_cidr_blocks])
-  common_tags            = var.eks_common_tags
+  common_tags            = var.eks_ec2_sg_common_tags
 }
 module "eks_cluster_sg" {
   source = "../modules/security_groups"
@@ -302,7 +302,7 @@ module "eks_worker_sg" {
   sg_ingress_with_self                = var.eks_worker_sg_ingress_with_self
   sg_egress_values                    = var.eks_worker_sg_egress_values
   sg_egress_cidr_blocks               = var.eks_worker_sg_egress_cidr_blocks
-  common_tags                         = var.eks_common_tags
+  common_tags                         = var.eks_common_tags #eks_worker_sg_common_tags
 }
 
 # this is for JSON policies
@@ -327,13 +327,13 @@ locals {
 module "eks" {
   source          = "../modules/eks"
   eks_common_tags = var.eks_common_tags
-  depends_on = [module.network, module.security_groups, module.eks_ecr_endpoints_sg, module.eks_ec2_endpoints_sg, module.eks_cluster_sg, module.eks_worker_sg]
+  depends_on      = [module.network, module.security_groups, module.eks_ecr_endpoints_sg, module.eks_ec2_endpoints_sg, module.eks_cluster_sg, module.eks_worker_sg]
 
   #cluster
   eks_ecr_image_tag_mutability = var.eks_ecr_image_tag_mutability
   eks_ecr_policy               = var.eks_ecr_policy
   eks_cluster_subnet_ids       = flatten([[module.network.private_subnet_ids], module.network.public_subnet_ids])
-  eks_security_groups_ids      = flatten([[module.eks_cluster_sg.sg_id],module.eks_worker_sg.sg_id])
+  eks_security_groups_ids      = flatten([[module.eks_cluster_sg.sg_id], module.eks_worker_sg.sg_id])
   endpoint_private_access      = var.endpoint_private_access
   endpoint_public_access       = var.endpoint_public_access
 
