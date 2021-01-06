@@ -18,13 +18,14 @@ variable "profile_west" {
   type        = string
   default     = "west"
 }
-variable "common_tags" {
-  type    = map
-  default = {}
-}
+
 ### To avoid such copy-paste from other variables.tf, use terragrunt. Or you can hardcore your values in main.tf(not recommended).
 
 ### Network variables
+variable "net_common_tags" {
+  type    = map
+  default = {}
+}
 variable "cidr_block" {
   type    = string
   default = ""
@@ -59,6 +60,10 @@ variable "default_rt_cidr_block" {
 }
 
 ### SG variables
+variable "sg_common_tags" {
+  type    = map
+  default = {}
+}
 variable "sg_value" {
   type    = bool
   default = false
@@ -532,15 +537,15 @@ variable "eks_common_tags" {
 }
 variable "eks_ecr_sg_common_tags" {
   type    = map
-  default = {}  
+  default = {}
 }
 variable "eks_ec2_sg_common_tags" {
   type    = map
-  default = {}    
+  default = {}
 }
 variable "eks_worker_sg_common_tags" {
   type    = map
-  default = {}  
+  default = {}
 }
 variable "eks_sg_ingress_values" {
   type    = list(map(any))

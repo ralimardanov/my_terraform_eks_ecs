@@ -47,7 +47,7 @@ data "template_file" "ec2_user_data" {
 }
 
 # EC2 module
-/*module "ec2" {
+module "ec2" {
   source         = "../modules/ec2"
   instance_count = var.instance_count
 
@@ -76,9 +76,9 @@ data "template_file" "ec2_user_data" {
 
   user_data       = data.template_file.ec2_user_data.rendered
   security_groups = module.security_groups.sg_id
-  subnet_id       = module.network.public_subnet_ids[var.instance_count]
+  subnet_ids      = module.network.public_subnet_ids
   common_tags     = var.ec2_jenkins_common_tags
-}*/
+}
 
 # Network module
 
@@ -107,7 +107,7 @@ module "network" {
   nat_gtw_count              = var.nat_gtw_count
   public_ip_value            = var.public_ip_value
   default_rt_cidr_block      = var.default_rt_cidr_block
-  common_tags                = var.common_tags
+  common_tags                = var.net_common_tags
   eks_vpc_tags               = local.eks_vpc_tags
   eks_public_subnets_tags    = local.eks_public_subnets_tags
   eks_private_subnets_tags   = local.eks_private_subnets_tags
@@ -117,13 +117,15 @@ module "network" {
 module "security_groups" {
   source = "../modules/security_groups"
 
-  vpc_id                 = module.network.vpc_id
-  sg_value               = var.sg_value
-  sg_ingress_values      = var.sg_ingress_values
-  sg_ingress_cidr_blocks = var.sg_ingress_cidr_blocks
-  sg_egress_values       = var.sg_egress_values
-  sg_egress_cidr_blocks  = var.sg_egress_cidr_blocks
-  common_tags            = var.common_tags
+  vpc_id                      = module.network.vpc_id
+  sg_value                    = var.sg_value
+  sg_ingress_values           = var.sg_ingress_values
+  sg_ingress_cidr_blocks      = var.sg_ingress_cidr_blocks
+  sg_egress_values            = var.sg_egress_values
+  sg_egress_cidr_blocks       = var.sg_egress_cidr_blocks
+  sg_ingress_with_self_values = var.sg_ingress_with_self_values
+  sg_ingress_with_self        = var.sg_ingress_with_self
+  common_tags                 = var.sg_common_tags
 }
 
 # ALB module
@@ -262,7 +264,7 @@ module "ecs" {
 
 # EKS module
 ### SG for EKS module
-module "eks_ecr_endpoints_sg" {
+/*module "eks_ecr_endpoints_sg" {
   source = "../modules/security_groups"
 
   vpc_id                 = module.network.vpc_id
@@ -375,4 +377,4 @@ module "eks" {
   eks_node_ro_policy_arn             = var.eks_node_ro_policy_arn
   eks_cluster_autoscaler_policy_name = var.eks_cluster_autoscaler_policy_name
   eks_cluster_autoscaler_policy      = data.template_file.eks_cluster_autoscaler_policy.rendered
-}
+}*/

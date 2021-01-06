@@ -98,10 +98,10 @@ variable "user_data" {
   default     = ""
 }
 
-variable "subnet_id" {
+variable "subnet_ids" {
   description = "Subnet ID for EC2 instance"
-  type        = string
-  default     = ""
+  type        = list(string)
+  default     = []
 }
 
 variable "ec2_public_ip" {

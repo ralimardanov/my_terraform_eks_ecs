@@ -63,7 +63,7 @@ resource "aws_instance" "instance" {
   security_groups             = var.security_groups
   key_name                    = aws_key_pair.instance_key_pair.key_name
   user_data                   = var.user_data
-  subnet_id                   = var.subnet_id
+  subnet_id                   = element(var.subnet_ids, count.index)
   associate_public_ip_address = var.ec2_public_ip
   iam_instance_profile        = aws_iam_instance_profile.ssm_access.name
 
@@ -79,5 +79,5 @@ resource "aws_instance" "instance" {
     create_before_destroy = true
   }
 
-  tags = merge(var.common_tags, { Name = "${var.common_tags["Env"]}-${var.common_tags["Component"]}-Instance" })
+  tags = merge(var.common_tags, { Name = "${var.common_tags["Env"]}-${var.common_tags["Component"]}-Instance-${count.index+1}" })
 }

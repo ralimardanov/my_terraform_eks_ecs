@@ -24,7 +24,7 @@ output "sg_module_id" {
 }
 
 # EC2 outputs
-/*output "instance_id" {
+output "instance_id" {
   value = module.ec2.instance_id
 }
 output "public_ip" {
@@ -36,7 +36,7 @@ output "private_ip" {
 
 output "private_key_content" {
   value = module.ec2.private_key_content
-}*/
+}
 
 /*output "ebs_id" {
   value = module.ec2.ebs_id
@@ -77,7 +77,7 @@ output "ecs_lb_record" {
 }*/
 
 # EKS outputs
-output "eks_ecr_endpoints_sg" {
+/*output "eks_ecr_endpoints_sg" {
   value = module.eks_ecr_endpoints_sg.sg_id
 }
 output "eks_ec2_endpoints_sg" {
@@ -119,4 +119,4 @@ output "ecr_ec2_id" {
 }
 output "ecr_s3_id" {
   value = module.eks.ecr_s3_id
-}
+}*/
