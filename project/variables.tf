@@ -177,6 +177,10 @@ variable "aws_iam_policy_arn" {
   type    = string
   default = ""
 }
+variable "aws_iam_s3_policy_arn" {
+  type    = string
+  default = ""
+}
 variable "instance_type" {
   type    = string
   default = ""

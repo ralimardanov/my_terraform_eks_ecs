@@ -20,6 +20,9 @@ data "aws_ami" "amazon_linux" {
 data "aws_iam_policy" "ssm_access" {
   arn = var.aws_iam_policy_arn
 }
+data "aws_iam_policy" "s3_access" {
+  arn = var.aws_iam_s3_policy_arn
+}
 
 data "aws_iam_policy_document" "ssm_access" {
   statement {
@@ -31,17 +34,21 @@ data "aws_iam_policy_document" "ssm_access" {
     }
   }
 }
-resource "aws_iam_role" "ssm_role" {
+resource "aws_iam_role" "ssm_s3_role" {
   name               = var.iam_role_name
   assume_role_policy = data.aws_iam_policy_document.ssm_access.json
 }
 resource "aws_iam_role_policy_attachment" "ssm_role_ssm_access_policy_attach" {
-  role       = aws_iam_role.ssm_role.name
+  role       = aws_iam_role.ssm_s3_role.name
   policy_arn = data.aws_iam_policy.ssm_access.arn
+}
+resource "aws_iam_role_policy_attachment" "ssm_s3_role_ssm_access_policy_attach" {
+  role       = aws_iam_role.ssm_s3_role.name
+  policy_arn = data.aws_iam_policy.s3_access.arn
 }
 resource "aws_iam_instance_profile" "ssm_access" {
   name = var.iam_instance_profile_name
-  role = aws_iam_role.ssm_role.name
+  role = aws_iam_role.ssm_s3_role.name
 }
 
 # SSH key generation for instance
@@ -60,7 +67,7 @@ resource "aws_instance" "instance" {
   count                       = var.instance_count
   ami                         = data.aws_ami.amazon_linux.id
   instance_type               = var.instance_type
-  security_groups             = var.security_groups
+  vpc_security_group_ids      = var.security_groups
   key_name                    = aws_key_pair.instance_key_pair.key_name
   user_data                   = var.user_data
   subnet_id                   = element(var.subnet_ids, count.index)

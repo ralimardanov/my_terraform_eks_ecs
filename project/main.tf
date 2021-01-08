@@ -64,6 +64,7 @@ module "ec2" {
   iam_role_name                   = var.iam_role_name
   iam_instance_profile_name       = var.iam_instance_profile_name
   aws_iam_policy_arn              = var.aws_iam_policy_arn
+  aws_iam_s3_policy_arn           = var.aws_iam_s3_policy_arn
 
   ebs_device_name           = var.ebs_device_name
   ebs_volume_type           = var.ebs_volume_type

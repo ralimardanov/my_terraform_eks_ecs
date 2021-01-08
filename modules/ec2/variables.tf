@@ -80,6 +80,11 @@ variable "aws_iam_policy_arn" {
   type        = string
   default     = ""
 }
+variable "aws_iam_s3_policy_arn" {
+  description = "SSM role ARN for policy attachment"
+  type        = string
+  default     = ""
+}
 variable "security_groups" {
   description = "Security group ID for EC2 instance"
   type        = list(string)
