@@ -74,12 +74,12 @@ resource "aws_instance" "instance" {
   associate_public_ip_address = var.ec2_public_ip
   iam_instance_profile        = aws_iam_instance_profile.ssm_access.name
 
-  ebs_block_device {
+  /*ebs_block_device {
     device_name           = var.ebs_device_name
     volume_type           = var.ebs_volume_type
     volume_size           = var.ebs_volume_size
     delete_on_termination = var.ebs_delete_on_termination
-  }
+  }*/
 
   # Always first create, then destroy instance
   lifecycle {

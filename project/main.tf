@@ -66,10 +66,10 @@ module "ec2" {
   aws_iam_policy_arn              = var.aws_iam_policy_arn
   aws_iam_s3_policy_arn           = var.aws_iam_s3_policy_arn
 
-  ebs_device_name           = var.ebs_device_name
+  /*ebs_device_name           = var.ebs_device_name
   ebs_volume_type           = var.ebs_volume_type
   ebs_volume_size           = var.ebs_volume_size
-  ebs_delete_on_termination = var.ebs_delete_on_termination
+  ebs_delete_on_termination = var.ebs_delete_on_termination*/
 
   key_algorithm = var.key_algorithm
   rsa_bits      = var.rsa_bits

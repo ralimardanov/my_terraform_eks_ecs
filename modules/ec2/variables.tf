@@ -117,7 +117,7 @@ variable "ec2_public_ip" {
 
 #EBS volume variables
 
-variable "ebs_device_name" {
+/*variable "ebs_device_name" {
   description = "EBS device name for EC2"
   type        = string
   default     = ""
@@ -125,17 +125,18 @@ variable "ebs_device_name" {
 variable "ebs_volume_type" {
   description = "EBS volume type for EC2"
   type        = string
-  default     = "standard"
+  default     = "gp2"
 }
 variable "ebs_volume_size" {
   description = "EBS volume size for EC2"
   type        = number
+  default     = 0
 }
 variable "ebs_delete_on_termination" {
   description = "True/False boolean for EBS volume delete on termination"
   type        = bool
   default     = false
-}
+}*/
 
 # SSH key variables
 variable "key_algorithm" {
